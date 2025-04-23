@@ -5,8 +5,10 @@
 }
 
 .header {
-    background-color: #222222;
-    color: #f2f2f2;
+    background-color: #6CAF44; /* Green background */
+    color: #ffffff;
+    border-top: 5px solid #F15A24; /* Orange top border */
+    padding: 0.5rem 1rem;
 }
 
 .headerContainer {
@@ -21,8 +23,9 @@
 .headerTitleContainer {
     display: flex;
     align-items: center;
-    color: #f2f2f2;
+    color: #ffffff;
     text-decoration: none;
+    font-weight: 600;
 }
 
 .headerLogo {
@@ -39,7 +42,7 @@
     z-index: 100;
     display: none;
     flex-direction: column;
-    background-color: #222222;
+    background-color: #6CAF44; /* Green background for dropdown */
     position: absolute;
     top: 2.7rem;
     right: 0;
@@ -54,31 +57,30 @@
 }
 
 .headerNavPageLink {
-    padding: 1rem;
-    border-bottom: 1px solid #333;
-    text-align: right;
-    color: #f2f2f2;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    color: #ffffff; /* White text */
     text-decoration: none;
-    opacity: 0.75;
-    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-    transition-duration: 500ms;
-    transition-property: opacity;
-    font-size: 1.2rem;
+    font-size: 1.2rem; /* Ensure consistent font size */
+    font-weight: 400; /* Consistent font weight */
+    background-color: transparent; /* Transparent background for simplicity */
+    transition: color 0.3s ease; /* Smooth hover effect */
 }
 
-.headerNavPageLink:hover {
-    opacity: 1;
-}
-
+.headerNavPageLink:hover,
 .headerNavPageLinkActive {
-    color: #f2f2f2;
-    text-decoration: none;
-    font-size: 1.2rem;
-    text-align: right;
-    padding: 1rem;
+    color: #F15A24; /* Orange text for hover and active states */
+    text-decoration: underline; /* Subtle underline effect */
+    font-size: 1.2rem; /* Maintain consistent size */
+    font-weight: 400; /* Maintain consistent weight */
 }
 
 .headerNavLeftMargin {
+    display: none;
+}
+
+.microsoftLogo,
+.githubLogo {
     display: none;
 }
 
@@ -86,7 +88,7 @@
     display: block;
     background: none;
     border: none;
-    color: #f2f2f2;
+    color: #ffffff;
     font-size: 1.5rem;
     cursor: pointer;
     z-index: 101;
@@ -95,7 +97,7 @@
 .loginMenuContainer {
     display: flex;
     align-items: center;
-    gap: 0; /* Ensure no gap between login button and menu toggle */
+    gap: 0;
 }
 
 @media (min-width: 992px) {
@@ -110,21 +112,25 @@
         padding: 0;
         position: static;
         width: auto;
+        align-items: center;
     }
 
     .headerNavPageLink {
         border-bottom: none;
-        padding: 0;
+        padding: 0.5rem 1rem;
         display: block;
+        font-size: 1.2rem; /* Ensure consistent font size */
+        font-weight: 400; /* Ensure consistent font weight */
+        transition: color 0.3s ease;
     }
 
-    .headerNavPageLink:hover {
-        opacity: 1;
-    }
-
+    .headerNavPageLink:hover,
     .headerNavPageLinkActive {
-        color: #f2f2f2;
-        text-decoration: none;
+        color: #F15A24; /* Orange text for hover and active states */
+        text-decoration: underline;
+        font-size: 1.2rem; /* Maintain consistent size */
+        font-weight: 500; /* Maintain consistent weight */
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
     }
 
     .headerNavLeftMargin {
@@ -138,7 +144,15 @@
         vertical-align: middle;
     }
 
+    .githubLogo,
+    .microsoftLogo {
+        height: 1.25rem;
+        font-weight: 600;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
     .menuToggle {
-        display: none;
+        color: #ffffff;
     }
 }

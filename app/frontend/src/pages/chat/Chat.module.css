@@ -33,7 +33,7 @@
     font-size: 2.75rem;
     font-weight: 600;
     margin-top: 0;
-    margin-bottom: 1.875rem;
+    margin-bottom: 0.875rem;
 }
 
 .chatEmptyStateSubtitle {
@@ -108,6 +108,13 @@
     margin-bottom: 1.25rem;
 }
 
+.ardurraLogo {
+    width: 150px;
+    height: auto;
+    margin-bottom: 2rem;
+}
+
+
 @media (min-width: 992px) {
     .container {
         margin-top: 1.25rem;
@@ -118,7 +125,7 @@
     }
 
     .chatEmptyStateTitle {
-        font-size: 4rem;
+        font-size: 3rem;
     }
 
     .chatInput {
