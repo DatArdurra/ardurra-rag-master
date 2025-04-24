@@ -172,7 +172,7 @@ class IntegratedVectorizerStrategy(Strategy):
             target_index_name=self.search_info.index_name,
             data_source_name=f"{self.search_info.index_name}-blob",
             # Map the metadata_storage_name field to the title field in the index to display the PDF title in the search results
-             field_mappings=[FieldMapping(source_field_name="metadata_storage_name", target_field_name="sourcefile")],
+            field_mappings=[FieldMapping(source_field_name="metadata_storage_name", target_field_name="sourcefile")],
         )
 
         indexer_client = self.search_info.create_search_indexer_client()
