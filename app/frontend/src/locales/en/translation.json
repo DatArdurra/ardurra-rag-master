@@ -1,6 +1,6 @@
 {
-    "pageTitle": "Ardurra AI Platform: Sample",
-    "headerTitle": "Ardurra AI Platform: Sample",
+    "pageTitle": "Ardurra AI Platform: Human Resources",
+    "headerTitle": "Ardurra AI Platform: Human Resources",
     "chat": "Chat",
     "qa": "Ask a question",
     "login": "Login",
@@ -37,16 +37,16 @@
     "chatEmptyStateTitle": "Ardurra's AI Assistant",
     "chatEmptyStateSubtitle": "Ask anything or try an example",
     "defaultExamples": {
-        "1": "",
-        "2": "",
-        "3": "",
+        "1": "What is the policy on parental leave?",
+        "2": "Where can i find the employee handbook?",
+        "3": "How do i submit a time-off request?",
         "placeholder": "Type a new question"
     },
     "askTitle": "Ask your data",
     "gpt4vExamples": {
-        "1": "",
-        "2": "",
-        "3": "",
+        "1": "What is the policy on parental leave?",
+        "2": "Where can i find the employee handbook?",
+        "3": "ow do i submit a time-off request?",
         "placeholder": ""
     },
     "generatingAnswer": "Generating answer",
