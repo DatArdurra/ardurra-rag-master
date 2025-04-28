@@ -1,6 +1,6 @@
 {
-    "pageTitle": "Ardurra AI Platform: Sample",
-    "headerTitle": "Ardurra AI Platform: Sample",
+    "pageTitle": "Ardurra AI Platform: Marketing - Resumes",
+    "headerTitle": "Ardurra AI Platform: Marketing - Resumes",
     "chat": "Chat",
     "qa": "Ask a question",
     "login": "Login",
@@ -37,16 +37,16 @@
     "chatEmptyStateTitle": "Ardurra's AI Assistant",
     "chatEmptyStateSubtitle": "Ask anything or try an example",
     "defaultExamples": {
-        "1": "",
-        "2": "",
-        "3": "",
+        "1": "Who has experience in Aerobic digestion",
+        "2": "Who has led a CMOM program?",
+        "3": "Who has more than five years of experience, and is a certified floodplain manager?",
         "placeholder": "Type a new question"
     },
     "askTitle": "Ask your data",
     "gpt4vExamples": {
-        "1": "",
-        "2": "",
-        "3": "",
+        "1": "Who has experience in Aerobic digestion",
+        "2": "Who has led a CMOM program?",
+        "3": "Who has more than five years of experience, and is a certified floodplain manager?",
         "placeholder": ""
     },
     "generatingAnswer": "Generating answer",
