@@ -98,7 +98,12 @@
     display: flex;
     align-items: center;
     gap: 0;
+    gap: 1rem;
 }
+
+.headerTopLink + .headerTopLink {
+    margin-left: 0rem;
+  }
 
 @media (min-width: 992px) {
     .headerTitle {

@@ -65,12 +65,12 @@ const Layout = () => {
                     </nav>
                     <div className={styles.loginMenuContainer}>
                         {useLogin && <LoginButton />}
-                        <IconButton
-                            iconProps={{ iconName: "GlobalNavButton" }}
-                            className={styles.menuToggle}
-                            onClick={toggleMenu}
-                            ariaLabel={t("labels.toggleMenu")}
-                        />
+                        <Link to="https://ardurra.sharepoint.com/:f:/s/Marketing/Eu-LLHI-q0RLuKMKsjt04jQBa0CfUOtkPbHK8nCoez5BIg?e=3bpJXr" className={styles.headerTopLink}>
+                            {t("headerTopLinkText", "Data Source")}
+                        </Link>
+                        <Link to="https://forms.office.com/pages/responsepage.aspx?id=qeXyTFN12UezxLKSmahTqX4Aio-2rGZAu4svUSi2g4FUNEc3SFlTWkhLNVBMNzBFMUowTVhSSzk1US4u&route=shorturl" className={styles.headerTopLink}>
+                            {t("headerTopLinkText", "Feedback Form")}
+                        </Link>
                     </div>
                 </div>
             </header>
