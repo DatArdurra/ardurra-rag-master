@@ -39,7 +39,6 @@ class ChatReadRetrieveReadVisionApproach(ChatApproach):
         embedding_deployment: Optional[str],  # Not needed for non-Azure OpenAI or for retrieval_mode="text"
         embedding_model: str,
         embedding_dimensions: int,
-        embedding_field: str,
         sourcepage_field: str,
         content_field: str,
         query_language: str,
@@ -59,7 +58,6 @@ class ChatReadRetrieveReadVisionApproach(ChatApproach):
         self.embedding_deployment = embedding_deployment
         self.embedding_model = embedding_model
         self.embedding_dimensions = embedding_dimensions
-        self.embedding_field = embedding_field
         self.sourcepage_field = sourcepage_field
         self.content_field = content_field
         self.query_language = query_language
@@ -91,7 +89,7 @@ class ChatReadRetrieveReadVisionApproach(ChatApproach):
         minimum_reranker_score = overrides.get("minimum_reranker_score", 0.0)
         filter = self.build_filter(overrides, auth_claims)
 
-        vector_fields = overrides.get("vector_fields", "textAndImageEmbeddings")
+        vector_fields = overrides.get("vector_fields", ["embedding"])
         send_text_to_gptvision = overrides.get("gpt4v_input") in ["textAndImages", "texts", None]
         send_images_to_gptvision = overrides.get("gpt4v_input") in ["textAndImages", "images", None]
 
@@ -124,10 +122,13 @@ class ChatReadRetrieveReadVisionApproach(ChatApproach):
         # If retrieval mode includes vectors, compute an embedding for the query
         vectors = []
         if use_vector_search:
-            if vector_fields == "textEmbeddingOnly" or vector_fields == "textAndImageEmbeddings":
-                vectors.append(await self.compute_text_embedding(query_text))
-            if vector_fields == "imageEmbeddingOnly" or vector_fields == "textAndImageEmbeddings":
-                vectors.append(await self.compute_image_embedding(query_text))
+            for field in vector_fields:
+                vector = (
+                    await self.compute_text_embedding(query_text)
+                    if field == "embedding"
+                    else await self.compute_image_embedding(query_text)
+                )
+                vectors.append(vector)
 
         results = await self.search(
             top,
