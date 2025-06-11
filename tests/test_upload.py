@@ -75,7 +75,7 @@ async def test_upload_file(auth_client, monkeypatch, mock_data_lake_service_clie
                             object="embedding",
                         )
                     ],
-                    model="text-embedding-3-large",
+                    model="text-embedding-ada-002",
                     usage=Usage(prompt_tokens=8, total_tokens=8),
                 )
             )

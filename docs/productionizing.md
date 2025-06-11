@@ -100,7 +100,13 @@ We recommend running a loadtest for your expected number of users.
 You can use the [locust tool](https://docs.locust.io/) with the `locustfile.py` in this sample
 or set up a loadtest with Azure Load Testing.
 
-First make sure you have the locust package installed in your Python environment:
+To use locust, first install the dev requirements that includes locust:
+
+```shell
+python -m pip install -r requirements-dev.txt
+```
+
+Or manually install locust:
 
 ```shell
 python -m pip install locust
