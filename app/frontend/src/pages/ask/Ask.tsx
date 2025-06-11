@@ -5,7 +5,7 @@ import { Panel, DefaultButton, Spinner } from "@fluentui/react";
 
 import styles from "./Ask.module.css";
 
-import { askApi, configApi, ChatAppResponse, ChatAppRequest, RetrievalMode, VectorFields, GPT4VInput, SpeechConfig } from "../../api";
+import { askApi, configApi, ChatAppResponse, ChatAppRequest, RetrievalMode, VectorFieldOptions, GPT4VInput, SpeechConfig } from "../../api";
 import { Answer, AnswerError } from "../../components/Answer";
 import { QuestionInput } from "../../components/QuestionInput";
 import { ExampleList } from "../../components/Example";
@@ -30,8 +30,6 @@ export function Component(): JSX.Element {
     const [minimumSearchScore, setMinimumSearchScore] = useState<number>(0);
     const [retrievalMode, setRetrievalMode] = useState<RetrievalMode>(RetrievalMode.Hybrid);
     const [retrieveCount, setRetrieveCount] = useState<number>(3);
-    const [maxSubqueryCount, setMaxSubqueryCount] = useState<number>(10);
-    const [resultsMergeStrategy, setResultsMergeStrategy] = useState<string>("interleaved");
     const [useSemanticRanker, setUseSemanticRanker] = useState<boolean>(true);
     const [useSemanticCaptions, setUseSemanticCaptions] = useState<boolean>(false);
     const [useQueryRewriting, setUseQueryRewriting] = useState<boolean>(false);
@@ -41,7 +39,7 @@ export function Component(): JSX.Element {
     const [includeCategory, setIncludeCategory] = useState<string>("");
     const [excludeCategory, setExcludeCategory] = useState<string>("");
     const [question, setQuestion] = useState<string>("");
-    const [vectorFields, setVectorFields] = useState<VectorFields>(VectorFields.TextAndImageEmbeddings);
+    const [vectorFieldList, setVectorFieldList] = useState<VectorFieldOptions[]>([VectorFieldOptions.Embedding, VectorFieldOptions.ImageEmbedding]);
     const [useOidSecurityFilter, setUseOidSecurityFilter] = useState<boolean>(false);
     const [useGroupsSecurityFilter, setUseGroupsSecurityFilter] = useState<boolean>(false);
     const [showGPT4VOptions, setShowGPT4VOptions] = useState<boolean>(false);
@@ -56,8 +54,6 @@ export function Component(): JSX.Element {
     const [showSpeechOutputAzure, setShowSpeechOutputAzure] = useState<boolean>(false);
     const audio = useRef(new Audio()).current;
     const [isPlaying, setIsPlaying] = useState(false);
-    const [showAgenticRetrievalOption, setShowAgenticRetrievalOption] = useState<boolean>(false);
-    const [useAgenticRetrieval, setUseAgenticRetrieval] = useState<boolean>(false);
 
     const lastQuestionRef = useRef<string>("");
 
@@ -101,11 +97,6 @@ export function Component(): JSX.Element {
             setShowSpeechInput(config.showSpeechInput);
             setShowSpeechOutputBrowser(config.showSpeechOutputBrowser);
             setShowSpeechOutputAzure(config.showSpeechOutputAzure);
-            setShowAgenticRetrievalOption(config.showAgenticRetrievalOption);
-            setUseAgenticRetrieval(config.showAgenticRetrievalOption);
-            if (config.showAgenticRetrievalOption) {
-                setRetrieveCount(10);
-            }
         });
     };
 
@@ -139,8 +130,6 @@ export function Component(): JSX.Element {
                         include_category: includeCategory.length === 0 ? undefined : includeCategory,
                         exclude_category: excludeCategory.length === 0 ? undefined : excludeCategory,
                         top: retrieveCount,
-                        max_subqueries: maxSubqueryCount,
-                        results_merge_strategy: resultsMergeStrategy,
                         temperature: temperature,
                         minimum_reranker_score: minimumRerankerScore,
                         minimum_search_score: minimumSearchScore,
@@ -151,11 +140,10 @@ export function Component(): JSX.Element {
                         reasoning_effort: reasoningEffort,
                         use_oid_security_filter: useOidSecurityFilter,
                         use_groups_security_filter: useGroupsSecurityFilter,
-                        vector_fields: vectorFields,
+                        vector_fields: vectorFieldList,
                         use_gpt4v: useGPT4V,
                         gpt4v_input: gpt4vInput,
                         language: i18n.language,
-                        use_agentic_retrieval: useAgenticRetrieval,
                         ...(seed !== null ? { seed: seed } : {})
                     }
                 },
@@ -198,12 +186,6 @@ export function Component(): JSX.Element {
             case "retrieveCount":
                 setRetrieveCount(value);
                 break;
-            case "maxSubqueryCount":
-                setMaxSubqueryCount(value);
-                break;
-            case "resultsMergeStrategy":
-                setResultsMergeStrategy(value);
-                break;
             case "useSemanticRanker":
                 setUseSemanticRanker(value);
                 break;
@@ -234,14 +216,12 @@ export function Component(): JSX.Element {
             case "gpt4vInput":
                 setGPT4VInput(value);
                 break;
-            case "vectorFields":
-                setVectorFields(value);
+            case "vectorFieldList":
+                setVectorFieldList(value);
                 break;
             case "retrievalMode":
                 setRetrievalMode(value);
                 break;
-            case "useAgenticRetrieval":
-                setUseAgenticRetrieval(value);
         }
     };
 
@@ -285,7 +265,7 @@ export function Component(): JSX.Element {
             </Helmet>
             <div className={styles.askTopSection}>
                 <div className={styles.commandsContainer}>
-                    {showUserUpload && <UploadFile className={styles.commandButton} disabled={!loggedIn} />}
+                    {showUserUpload && <UploadFile className={styles.commandButton} disabled={loggedIn} />}
                     <SettingsButton className={styles.commandButton} onClick={() => setIsConfigPanelOpen(!isConfigPanelOpen)} />
                 </div>
                 <h1 className={styles.askTitle}>{t("askTitle")}</h1>
@@ -354,8 +334,6 @@ export function Component(): JSX.Element {
                     promptTemplateSuffix={promptTemplateSuffix}
                     temperature={temperature}
                     retrieveCount={retrieveCount}
-                    maxSubqueryCount={maxSubqueryCount}
-                    resultsMergeStrategy={resultsMergeStrategy}
                     seed={seed}
                     minimumSearchScore={minimumSearchScore}
                     minimumRerankerScore={minimumRerankerScore}
@@ -368,7 +346,7 @@ export function Component(): JSX.Element {
                     retrievalMode={retrievalMode}
                     useGPT4V={useGPT4V}
                     gpt4vInput={gpt4vInput}
-                    vectorFields={vectorFields}
+                    vectorFieldList={vectorFieldList}
                     showSemanticRankerOption={showSemanticRankerOption}
                     showQueryRewritingOption={showQueryRewritingOption}
                     showReasoningEffortOption={showReasoningEffortOption}
@@ -379,8 +357,6 @@ export function Component(): JSX.Element {
                     useLogin={!!useLogin}
                     loggedIn={loggedIn}
                     requireAccessControl={requireAccessControl}
-                    showAgenticRetrievalOption={showAgenticRetrievalOption}
-                    useAgenticRetrieval={useAgenticRetrieval}
                     onChange={handleSettingsChange}
                 />
                 {useLogin && <TokenClaimsDisplay />}

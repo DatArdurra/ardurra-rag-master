@@ -56,9 +56,7 @@ def run_server(port: int):
             "AZURE_SPEECH_SERVICE_ID": "test-id",
             "AZURE_SPEECH_SERVICE_LOCATION": "eastus",
             "AZURE_OPENAI_SERVICE": "test-openai-service",
-            "AZURE_OPENAI_CHATGPT_MODEL": "gpt-4.1-mini",
-            "AZURE_OPENAI_EMB_MODEL_NAME": "text-embedding-3-large",
-            "AZURE_OPENAI_EMB_DIMENSIONS": "3072",
+            "AZURE_OPENAI_CHATGPT_MODEL": "gpt-4o-mini",
         },
         clear=True,
     ):
@@ -218,7 +216,7 @@ def test_chat_customization_gpt4v(page: Page, live_server_url: str):
         overrides = route.request.post_data_json["context"]["overrides"]
         assert overrides["gpt4v_input"] == "images"
         assert overrides["use_gpt4v"] is True
-        assert overrides["vector_fields"] == "imageEmbeddingOnly"
+        assert overrides["vector_fields"] == ["imageEmbedding"]
 
         # Read the JSON from our snapshot results and return as the response
         f = open("tests/snapshots/test_app/test_chat_text/client0/result.json")
@@ -249,9 +247,7 @@ def test_chat_customization_gpt4v(page: Page, live_server_url: str):
 
     # Customize the GPT-4-vision settings
     page.get_by_role("button", name="Developer settings").click()
-    # Check that "Use GPT vision model" is visible and selected
-    expect(page.get_by_text("Use GPT vision model")).to_be_visible()
-    expect(page.get_by_role("checkbox", name="Use GPT vision model")).to_be_checked()
+    page.get_by_text("Use GPT vision model").click()
     page.get_by_text("Images and text").click()
     page.get_by_role("option", name="Images", exact=True).click()
     page.get_by_text("Text and Image embeddings").click()
