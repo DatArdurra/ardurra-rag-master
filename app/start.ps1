@@ -1,3 +1,29 @@
+# ── at the very top of your script ──
+# pick your azd environment name; you can also export AZD_ENV_NAME
+$azdEnvName = if ($Env:AZD_ENV_NAME) { $Env:AZD_ENV_NAME } else { "human-resources" }
+
+Write-Host ""
+Write-Host "Loading azd .env file from environment '$azdEnvName'"
+Write-Host ""
+
+# ── update this line to include --environment $azdEnvName ──
+foreach ($line in & azd env get-values --environment $azdEnvName) {
+    if ($line -match "([^=]+)=(.*)") {
+        $key   = $matches[1]
+        $value = $matches[2] -replace '^"|"$'
+        Set-Item -Path "env:\$key" -Value $value
+    }
+}
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Failed to load environment variables from azd environment '$azdEnvName'"
+    exit $LASTEXITCODE
+}
+
+# …the rest of your script remains unchanged…
+
+
+
 # set the parent of the script as the current location.
 Set-Location $PSScriptRoot
 
