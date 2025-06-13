@@ -61,9 +61,11 @@ module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.8.0
 
 module containerRegistry 'br/public:avm/res/container-registry/registry:0.5.1' = {
   name: '${name}-container-registry'
-  scope: resourceGroup(!
-empty(containerRegistryResourceGroupName) ? 
-containerRegistryResourceGroupName : resourceGroup().name)
+  scope: resourceGroup(
+    !empty(containerRegistryResourceGroupName)
+      ? containerRegistryResourceGroupName
+      : resourceGroup().name
+  )
   params: {
     name: containerRegistryName
     location: location
@@ -71,6 +73,7 @@ containerRegistryResourceGroupName : resourceGroup().name)
     tags: tags
   }
 }
+
 
 output defaultDomain string = containerAppsEnvironment.outputs.defaultDomain
 output environmentName string = containerAppsEnvironment.outputs.name
