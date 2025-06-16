@@ -22,7 +22,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment:
-      name: $({ github.ref_name })
+      name: Human-Resources
     env:
       # azd required
       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
