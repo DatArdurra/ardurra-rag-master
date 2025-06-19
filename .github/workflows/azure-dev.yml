@@ -21,6 +21,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: idm-tceq
     env:
       # azd required
       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
