@@ -2,9 +2,9 @@ import { useRef, useState, useEffect, useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
 import { Panel, DefaultButton } from "@fluentui/react";
+import { SparkleFilled } from "@fluentui/react-icons";
 import readNDJSONStream from "ndjson-readablestream";
 
-import appLogo from "../../assets/applogo.svg";
 import styles from "./Chat.module.css";
 
 import {
@@ -37,6 +37,9 @@ import { LoginContext } from "../../loginContext";
 import { LanguagePicker } from "../../i18n/LanguagePicker";
 import { Settings } from "../../components/Settings/Settings";
 
+import ardurraLogo from "../../assets/ardurra-logo.svg";
+
+
 const Chat = () => {
     const [isConfigPanelOpen, setIsConfigPanelOpen] = useState(false);
     const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false);
@@ -48,9 +51,6 @@ const Chat = () => {
     const [retrieveCount, setRetrieveCount] = useState<number>(3);
     const [retrievalMode, setRetrievalMode] = useState<RetrievalMode>(RetrievalMode.Hybrid);
     const [useSemanticRanker, setUseSemanticRanker] = useState<boolean>(true);
-    const [useQueryRewriting, setUseQueryRewriting] = useState<boolean>(false);
-    const [reasoningEffort, setReasoningEffort] = useState<string>("");
-    const [streamingEnabled, setStreamingEnabled] = useState<boolean>(true);
     const [shouldStream, setShouldStream] = useState<boolean>(true);
     const [useSemanticCaptions, setUseSemanticCaptions] = useState<boolean>(false);
     const [includeCategory, setIncludeCategory] = useState<string>("");
@@ -79,8 +79,6 @@ const Chat = () => {
 
     const [showGPT4VOptions, setShowGPT4VOptions] = useState<boolean>(false);
     const [showSemanticRankerOption, setShowSemanticRankerOption] = useState<boolean>(false);
-    const [showQueryRewritingOption, setShowQueryRewritingOption] = useState<boolean>(false);
-    const [showReasoningEffortOption, setShowReasoningEffortOption] = useState<boolean>(false);
     const [showVectorOption, setShowVectorOption] = useState<boolean>(false);
     const [showUserUpload, setShowUserUpload] = useState<boolean>(false);
     const [showLanguagePicker, setshowLanguagePicker] = useState<boolean>(false);
@@ -105,16 +103,6 @@ const Chat = () => {
             setShowGPT4VOptions(config.showGPT4VOptions);
             setUseSemanticRanker(config.showSemanticRankerOption);
             setShowSemanticRankerOption(config.showSemanticRankerOption);
-            setUseQueryRewriting(config.showQueryRewritingOption);
-            setShowQueryRewritingOption(config.showQueryRewritingOption);
-            setShowReasoningEffortOption(config.showReasoningEffortOption);
-            setStreamingEnabled(config.streamingEnabled);
-            if (!config.streamingEnabled) {
-                setShouldStream(false);
-            }
-            if (config.showReasoningEffortOption) {
-                setReasoningEffort(config.defaultReasoningEffort);
-            }
             setShowVectorOption(config.showVectorOption);
             if (!config.showVectorOption) {
                 setRetrievalMode(RetrievalMode.Text);
@@ -212,8 +200,6 @@ const Chat = () => {
                         retrieval_mode: retrievalMode,
                         semantic_ranker: useSemanticRanker,
                         semantic_captions: useSemanticCaptions,
-                        query_rewriting: useQueryRewriting,
-                        reasoning_effort: reasoningEffort,
                         suggest_followup_questions: useSuggestFollowupQuestions,
                         use_oid_security_filter: useOidSecurityFilter,
                         use_groups_security_filter: useGroupsSecurityFilter,
@@ -302,12 +288,6 @@ const Chat = () => {
             case "useSemanticRanker":
                 setUseSemanticRanker(value);
                 break;
-            case "useQueryRewriting":
-                setUseQueryRewriting(value);
-                break;
-            case "reasoningEffort":
-                setReasoningEffort(value);
-                break;
             case "useSemanticCaptions":
                 setUseSemanticCaptions(value);
                 break;
@@ -393,14 +373,18 @@ const Chat = () => {
                 <div className={styles.chatContainer}>
                     {!lastQuestionRef.current ? (
                         <div className={styles.chatEmptyState}>
-                            <img src={appLogo} alt="App logo" width="120" height="120" />
+                        <img 
+                            src={ardurraLogo} 
+                            alt="Ardurra Logo" 
+                            className={styles.ardurraLogo} 
+                        />
 
-                            <h1 className={styles.chatEmptyStateTitle}>{t("chatEmptyStateTitle")}</h1>
-                            <h2 className={styles.chatEmptyStateSubtitle}>{t("chatEmptyStateSubtitle")}</h2>
-                            {showLanguagePicker && <LanguagePicker onLanguageChange={newLang => i18n.changeLanguage(newLang)} />}
-
-                            <ExampleList onExampleClicked={onExampleClicked} useGPT4V={useGPT4V} />
-                        </div>
+                        <h1 className={styles.chatEmptyStateTitle}>{t("chatEmptyStateTitle")}</h1>
+                        <h2 className={styles.chatEmptyStateSubtitle}>{t("chatEmptyStateSubtitle")}</h2>
+                        {showLanguagePicker && <LanguagePicker onLanguageChange={newLang => i18n.changeLanguage(newLang)} />}
+                        <ExampleList onExampleClicked={onExampleClicked} useGPT4V={useGPT4V} />
+                    </div>
+                    
                     ) : (
                         <div className={styles.chatMessageStream}>
                             {isStreaming &&
@@ -523,8 +507,6 @@ const Chat = () => {
                         minimumRerankerScore={minimumRerankerScore}
                         useSemanticRanker={useSemanticRanker}
                         useSemanticCaptions={useSemanticCaptions}
-                        useQueryRewriting={useQueryRewriting}
-                        reasoningEffort={reasoningEffort}
                         excludeCategory={excludeCategory}
                         includeCategory={includeCategory}
                         retrievalMode={retrievalMode}
@@ -532,8 +514,6 @@ const Chat = () => {
                         gpt4vInput={gpt4vInput}
                         vectorFieldList={vectorFieldList}
                         showSemanticRankerOption={showSemanticRankerOption}
-                        showQueryRewritingOption={showQueryRewritingOption}
-                        showReasoningEffortOption={showReasoningEffortOption}
                         showGPT4VOptions={showGPT4VOptions}
                         showVectorOption={showVectorOption}
                         useOidSecurityFilter={useOidSecurityFilter}
@@ -542,7 +522,6 @@ const Chat = () => {
                         loggedIn={loggedIn}
                         requireAccessControl={requireAccessControl}
                         shouldStream={shouldStream}
-                        streamingEnabled={streamingEnabled}
                         useSuggestFollowupQuestions={useSuggestFollowupQuestions}
                         showSuggestFollowupQuestions={true}
                         onChange={handleSettingsChange} useQueryRewriting={false} reasoningEffort={""} showQueryRewritingOption={false} showReasoningEffortOption={false}                    />
