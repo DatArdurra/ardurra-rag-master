@@ -33,9 +33,9 @@ Install the following tools:
 2. Clone the repository branch:
  
    ```bash
-   git clone --branch idm-tceq https://github.com/ParthSharma023/ardurra-rag-master.git
+   git clone --branch sample https://github.com/ParthSharma023/ardurra-rag-master.git 
    cd ardurra-rag-master
-   git checkout idm-tceq  # Or the branch you need
+   git checkout sample # Or the branch you need
    ```
  
 ---
@@ -48,21 +48,18 @@ Install the following tools:
    azd auth login
    ```
  
-2. Create the following folder structure in your project:
+---
+
+### Setup Model
  
-   ```
-   .azure/idm-tceq/.env
-   ```
- 
-   > **Reach out to `PSharma@ardurra.com` to get the `.env` file.**
- 
-3. Set this environment as default:
+1. Login to Azure:
  
    ```bash
-   azd env select idm-tceq
+   azd up
    ```
  
 ---
+ 
  
 ### Start the App
  
