@@ -89,6 +89,7 @@ from config import (
 )
 from core.authentication import AuthenticationHelper
 from core.sessionhelper import create_session_id
+from core.telemetry import update_telemetry
 from decorators import authenticated, authenticated_path
 from error import error_dict, error_response
 from prepdocs import (
@@ -310,6 +311,11 @@ def config():
             "showChatHistoryCosmos": current_app.config[CONFIG_CHAT_HISTORY_COSMOS_ENABLED],
         }
     )
+
+@bp.route("/log_login", methods=["POST"])
+async def log_login():
+    update_telemetry()
+    return jsonify({"message": "Telemetry updated"}), 200
 
 
 @bp.route("/speech", methods=["POST"])

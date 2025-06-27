@@ -2,9 +2,9 @@
 
 import { IPublicClientApplication } from "@azure/msal-browser";
 
-const appServicesAuthTokenUrl = ".auth/me";
-const appServicesAuthTokenRefreshUrl = ".auth/refresh";
-const appServicesAuthLogoutUrl = ".auth/logout?post_logout_redirect_uri=/";
+const appServicesAuthTokenUrl = " .auth/me";
+const appServicesAuthTokenRefreshUrl = " .auth/refresh";
+const appServicesAuthLogoutUrl = " .auth/logout?post_logout_redirect_uri=/";
 
 interface AppServicesToken {
     id_token: string;
@@ -54,7 +54,7 @@ interface AuthSetup {
 
 // Fetch the auth setup JSON data from the API if not already cached
 async function fetchAuthSetup(): Promise<AuthSetup> {
-    const response = await fetch("/auth_setup");
+    const response = await fetch(" http://localhost:5173/auth_setup");
     if (!response.ok) {
         throw new Error(`auth setup response was not ok: ${response.status}`);
     }
@@ -220,6 +220,10 @@ export const getToken = async (client: IPublicClientApplication): Promise<string
 export const getUsername = async (client: IPublicClientApplication): Promise<string | null> => {
     const activeAccount = client.getActiveAccount();
     if (activeAccount) {
+        fetch("http://127.0.0.1:50505/log_login", { method: "POST" })
+            .then(res => res.json())
+            .then(data => console.log("Response from backend:", data))
+            .catch(err => console.error("Fetch error:", err));
         return activeAccount.username;
     }
 
