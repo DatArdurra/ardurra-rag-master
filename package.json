@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@fluentui/react": "^8.123.0",
+    "recharts": "^3.0.2"
+  }
+}

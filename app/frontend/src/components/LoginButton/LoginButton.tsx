@@ -36,7 +36,16 @@ export const LoginButton = () => {
             .catch(error => console.log(error))
             .then(async () => {
                 setLoggedIn(await checkLoggedIn(instance));
-                setUsername((await getUsername(instance)) ?? "");
+                const user = (await getUsername(instance)) ?? "";
+                setUsername(user);
+
+                if (user) {
+                    await fetch("/log_login", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username: user })
+                    });
+                }                      
             });
     };
     const handleLogoutPopup = () => {

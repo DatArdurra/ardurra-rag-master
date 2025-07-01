@@ -160,7 +160,29 @@ const Chat = () => {
         return fullResponse;
     };
 
+
     const client = useLogin ? useMsal().instance : undefined;
+    const user   = client?.getActiveAccount()?.username;
+
+    useEffect(() => {
+        // cast to any so TS doesn’t complain
+        const win = window as any;
+        if (user && !win.hasLoggedChatView) {
+        fetch("/log_view", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: user, reportId: "chat-page" })
+        });
+        // flip the flag so any further mounts this load do nothing
+        win.hasLoggedChatView = true;
+        }
+    }, [user]);
+
+
+
+
+
+
     const { loggedIn } = useContext(LoginContext);
 
     const historyProvider: HistoryProviderOptions = (() => {

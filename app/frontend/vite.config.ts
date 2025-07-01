@@ -29,6 +29,9 @@ export default defineConfig({
     server: {
         host: "127.0.0.1",
         proxy: {
+            "/view_stats": "http://127.0.0.1:50505",
+            "/log_view": "http://127.0.0.1:50505",
+            "/log_login": "http://127.0.0.1:50505",
             "/content/": "http://127.0.0.1:50505",
             "/auth_setup": "http://127.0.0.1:50505",
             "/.auth/me": "http://127.0.0.1:50505",

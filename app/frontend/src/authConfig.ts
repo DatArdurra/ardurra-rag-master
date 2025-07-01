@@ -220,12 +220,9 @@ export const getToken = async (client: IPublicClientApplication): Promise<string
 export const getUsername = async (client: IPublicClientApplication): Promise<string | null> => {
     const activeAccount = client.getActiveAccount();
     if (activeAccount) {
-        fetch("http://127.0.0.1:50505/log_login", { method: "POST" })
-            .then(res => res.json())
-            .then(data => console.log("Response from backend:", data))
-            .catch(err => console.error("Fetch error:", err));
-        return activeAccount.username;
-    }
+    return activeAccount.username;
+}
+
 
     const appServicesToken = await getAppServicesToken();
     if (appServicesToken?.user_claims) {

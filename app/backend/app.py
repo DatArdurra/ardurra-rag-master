@@ -8,6 +8,17 @@ import time
 from collections.abc import AsyncGenerator
 from pathlib import Path
 from typing import Any, Union, cast
+from quart import request, jsonify
+
+
+from core.telemetry import (
+    update_telemetry,
+    log_login_history,
+    log_view_history,    # ← make sure this is here
+    get_view_stats
+)
+
+
 
 from azure.cognitiveservices.speech import (
     ResultReason,
@@ -314,8 +325,36 @@ def config():
 
 @bp.route("/log_login", methods=["POST"])
 async def log_login():
+    # 1) pull the JSON payload
+    payload = await request.get_json()
+    username = payload.get("username")
+
+    # 2) bump your counter
     update_telemetry()
-    return jsonify({"message": "Telemetry updated"}), 200
+
+    # 3) record the username + timestamp
+    if username:
+        log_login_history(username)
+
+    # 4) respond
+    return jsonify({
+        "message": "Login recorded",
+        "username": username
+    }), 200
+
+@bp.route("/log_view", methods=["POST"])
+async def log_view():
+    payload = await request.get_json(silent=True) or {}
+    user     = payload.get("username") 
+    report   = payload.get("reportId", "unknown")
+    if user:
+        log_view_history(user, report)
+    return jsonify({"status":"ok"}), 200
+
+@bp.route("/view_stats", methods=["GET"])
+async def view_stats():
+    return jsonify(get_view_stats()), 200
+
 
 
 @bp.route("/speech", methods=["POST"])
