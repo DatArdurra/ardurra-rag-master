@@ -70,7 +70,7 @@ Install the following tools:
 2. Create the following folder structure in your project:
  
    ```
-   .azure/idm-tceq/.env
+   .azure/marketing/.env
    ```
  
    > **Reach out to `PSharma@ardurra.com` to get the `.env` file.**
@@ -78,7 +78,7 @@ Install the following tools:
 3. Set this environment as default:
  
    ```bash
-   azd env select idm-tceq
+   azd env select marketing
    ```
  
 ---
