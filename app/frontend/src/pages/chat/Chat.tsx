@@ -39,16 +39,15 @@ import { Settings } from "../../components/Settings/Settings";
 
 import ardurraLogo from "../../assets/ardurra-logo.svg";
 
-
 const Chat = () => {
     const [isConfigPanelOpen, setIsConfigPanelOpen] = useState(false);
     const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false);
     const [promptTemplate, setPromptTemplate] = useState<string>("");
     const [temperature, setTemperature] = useState<number>(0.3);
     const [seed, setSeed] = useState<number | null>(null);
-    const [minimumRerankerScore, setMinimumRerankerScore] = useState<number>(0);
-    const [minimumSearchScore, setMinimumSearchScore] = useState<number>(0);
-    const [retrieveCount, setRetrieveCount] = useState<number>(3);
+    const [minimumRerankerScore, setMinimumRerankerScore] = useState<number>(1.7);
+    const [minimumSearchScore, setMinimumSearchScore] = useState<number>(0.012);
+    const [retrieveCount, setRetrieveCount] = useState<number>(25);
     const [retrievalMode, setRetrievalMode] = useState<RetrievalMode>(RetrievalMode.Hybrid);
     const [useSemanticRanker, setUseSemanticRanker] = useState<boolean>(true);
     const [shouldStream, setShouldStream] = useState<boolean>(true);
@@ -373,18 +372,13 @@ const Chat = () => {
                 <div className={styles.chatContainer}>
                     {!lastQuestionRef.current ? (
                         <div className={styles.chatEmptyState}>
-                        <img 
-                            src={ardurraLogo} 
-                            alt="Ardurra Logo" 
-                            className={styles.ardurraLogo} 
-                        />
+                            <img src={ardurraLogo} alt="Ardurra Logo" className={styles.ardurraLogo} />
 
-                        <h1 className={styles.chatEmptyStateTitle}>{t("chatEmptyStateTitle")}</h1>
-                        <h2 className={styles.chatEmptyStateSubtitle}>{t("chatEmptyStateSubtitle")}</h2>
-                        {showLanguagePicker && <LanguagePicker onLanguageChange={newLang => i18n.changeLanguage(newLang)} />}
-                        <ExampleList onExampleClicked={onExampleClicked} useGPT4V={useGPT4V} />
-                    </div>
-                    
+                            <h1 className={styles.chatEmptyStateTitle}>{t("chatEmptyStateTitle")}</h1>
+                            <h2 className={styles.chatEmptyStateSubtitle}>{t("chatEmptyStateSubtitle")}</h2>
+                            {showLanguagePicker && <LanguagePicker onLanguageChange={newLang => i18n.changeLanguage(newLang)} />}
+                            <ExampleList onExampleClicked={onExampleClicked} useGPT4V={useGPT4V} />
+                        </div>
                     ) : (
                         <div className={styles.chatMessageStream}>
                             {isStreaming &&
@@ -524,7 +518,12 @@ const Chat = () => {
                         shouldStream={shouldStream}
                         useSuggestFollowupQuestions={useSuggestFollowupQuestions}
                         showSuggestFollowupQuestions={true}
-                        onChange={handleSettingsChange} useQueryRewriting={false} reasoningEffort={""} showQueryRewritingOption={false} showReasoningEffortOption={false}                    />
+                        onChange={handleSettingsChange}
+                        useQueryRewriting={false}
+                        reasoningEffort={""}
+                        showQueryRewritingOption={false}
+                        showReasoningEffortOption={false}
+                    />
                     {useLogin && <TokenClaimsDisplay />}
                 </Panel>
             </div>
