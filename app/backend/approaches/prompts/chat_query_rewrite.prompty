@@ -15,25 +15,71 @@ sample:
 ---
 system:
 Below is a history of the conversation so far, and a new question asked by the user that needs to be answered by searching in a knowledge base.
-You have access to Azure AI Search index with 100's of documents.
-Generate a search query based on the conversation and the new question.
-Do not include cited source filenames and document names e.g. info.txt or doc.pdf in the search query terms.
-Do not include any text inside [] or <<>> in the search query terms.
-Do not include any special characters like '+'.
+
+Generate a search query based on the new question.
+Always respond with a short, keyword phrase suitable for a search engine, and nothing else.
+Only include keywords. Ignore non-key words from the user. Ignore user requests that wouldn't help with a search.
+Do not include formatting instructions such as “in alphabetical order,” “as a list,” “grouped by,” or “sorted by” in the query. These are output preferences, not search keywords.
+You are doing this for an engineering company called Ardurra. Don't include redundant terms like "Ardurra", "engineer", or "project" in the query.
+For highway or infrastructure names (e.g. “US1”, “I-75”), drop words like “project” or “engineers”.
+Include the keywords "Education", "Registration", "Organizations", or "Years Experience" if the user query is about qualifications, licensure, memberships, or experience duration.
+Normalize licensure-related queries to: Registration, and add the credential (e.g. PE, CFM) if stated.
 If the question is not in English, translate the question to English before generating the search query.
-If you cannot generate a search query, return just the number 0.
+If no relevant keywords can be extracted, return only: 0 (no quotes). Do not repeat the user query.
 
 user:
-How did crypto do last year?
+Who has experience in Aerobic digestion?
 
 assistant:
-Summarize Cryptocurrency Market Dynamics from last year
+Aerobic digestion
 
 user:
-What are my health plans?
+Tell me about Will Kuehne.
 
 assistant:
-Show available health plans
+Will Kuehne
+
+user:
+Who in Ardurra has led a CMOM program?
+
+assistant:
+led CMOM program
+
+user:
+Are there any engineers that have experience with fire hydrants?
+
+assistant:
+fire hydrants
+
+user:
+Which engineers have worked on the Signature 395 Bridge? Please provide the answer as an enumerated list.
+
+assistant:
+Signature 395 Bridge
+
+user:
+Who has worked on Rosewater Drive? List the engineers in alphabetical order.
+
+assistant:
+Rosewater Drive
+
+user:
+Please tell me all the engineers that have worked with ponds. Please tell me at least 5.
+
+assistant:
+ponds
+
+user:
+Who is licensed in Idaho?
+
+assistant:
+Registration Idaho
+
+user:
+Who has more than five years of experience, and is a certified floodplain manager?
+
+assistant:
+Years Experience, Registration certified floodplain manager
 
 {% for message in past_messages %}
 {{ message["role"] }}:
@@ -41,4 +87,4 @@ Show available health plans
 {% endfor %}
 
 user:
-Generate search query for: {{ user_query }}
+Generate a search query for: {{ user_query }}

@@ -37,11 +37,15 @@ export const AnalysisPanel = ({ answer, activeTab, activeCitation, citationHeigh
         if (activeCitation) {
             // Get hash from the URL as it may contain #page=N
             // which helps browser PDF renderer jump to correct page N
-            const originalHash = activeCitation.indexOf("#") ? activeCitation.split("#")[1] : "";
+            const originalHash = activeCitation.includes("#") ? activeCitation.split("#")[1] : "";
             const response = await fetch(activeCitation, {
                 method: "GET",
                 headers: await getHeaders(token)
             });
+            if (!response.ok) {
+                console.error(`Failed to fetch citation: ${response.status} ${response.statusText}`);
+                return;
+            }
             const citationContent = await response.blob();
             let citationObjectUrl = URL.createObjectURL(citationContent);
             // Add hash back to the new blob URL
