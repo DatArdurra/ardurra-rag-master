@@ -66,7 +66,8 @@ class ChatReadRetrieveReadVisionApproach(ChatApproach):
         self.vision_token_provider = vision_token_provider
         self.prompt_manager = prompt_manager
         self.query_rewrite_prompt = self.prompt_manager.load_prompt("chat_query_rewrite.prompty")
-        self.query_rewrite_tools = self.prompt_manager.load_tools("chat_query_rewrite_tools.json")
+        self.extract_keywords_prompt = self.prompt_manager.load_prompt("chat_extract_keywords.prompty")
+        self.tools = self.prompt_manager.load_tools("chat_query_rewrite_tools.json") # not used
         self.answer_prompt = self.prompt_manager.load_prompt("chat_answer_question_vision.prompty")
         # Currently disabled due to issues with rendering token usage in the UI
         self.include_token_usage = False
@@ -96,28 +97,48 @@ class ChatReadRetrieveReadVisionApproach(ChatApproach):
         original_user_query = messages[-1]["content"]
         if not isinstance(original_user_query, str):
             raise ValueError("The most recent message content must be a string.")
+        
+        # STEP 1: Generate a new query based on the chat history and the last question
 
-        # Use prompty to prepare the query prompt
-        query_messages = self.prompt_manager.render_prompt(
-            self.query_rewrite_prompt, {"user_query": original_user_query, "past_messages": messages[:-1]}
-        )
-        tools: list[ChatCompletionToolParam] = self.query_rewrite_tools
+        if messages:
+            # Use prompty to prepare the query prompt
+            query_messages = self.prompt_manager.render_prompt(
+                self.query_rewrite_prompt, {"user_query": original_user_query, "past_messages": messages[:-1]}
+            )
+            tools: list[ChatCompletionToolParam] = self.tools # not used, likely not needed
 
-        # STEP 1: Generate an optimized keyword search query based on the chat history and the last question
-        chat_completion: ChatCompletion = await self.openai_client.chat.completions.create(
-            messages=query_messages,
+            # Use the prepared prompt to generate the question with context
+            chat_completion_context: ChatCompletion = await self.openai_client.chat.completions.create(
+                messages=query_messages,
+                # Azure OpenAI takes the deployment name as the model name
+                model=self.chatgpt_deployment if self.chatgpt_deployment else self.chatgpt_model,
+                temperature=0.1,  # Have some creativity for inserting context from past queries
+                max_tokens=100,
+                n=1,
+                seed=seed, # no tools needed
+            )
+
+            query_with_context = self.get_search_query(chat_completion_context, original_user_query)
+        
+        else:
+            query_with_context = original_user_query
+
+        # STEP 2: Generate an optimized keyword search query based on the rewritten question
+        contextual_query = self.prompt_manager.render_prompt(self.extract_keywords_prompt, {"user_query": query_with_context})
+
+        chat_completion_keywords: ChatCompletion = await self.openai_client.chat.completions.create(
+            messages=contextual_query,
             # Azure OpenAI takes the deployment name as the model name
             model=self.chatgpt_deployment if self.chatgpt_deployment else self.chatgpt_model,
-            temperature=0.0,  # Minimize creativity for search query generation
+            temperature=0.0,  # No creativity for generating keywords
             max_tokens=100,
             n=1,
-            tools=tools,
-            seed=seed,
+            seed=seed, # no tools neededs
         )
 
-        query_text = self.get_search_query(chat_completion, original_user_query)
+        query_text = self.get_search_query(chat_completion_keywords, query_with_context)
 
-        # STEP 2: Retrieve relevant documents from the search index with the GPT optimized query
+        # STEP 3: Retrieve relevant documents from the search index with the GPT optimized query
 
         # If retrieval mode includes vectors, compute an embedding for the query
         vectors = []
@@ -144,7 +165,7 @@ class ChatReadRetrieveReadVisionApproach(ChatApproach):
             use_query_rewriting,
         )
 
-        # STEP 3: Generate a contextual and content specific answer using the search results and chat history
+        # STEP 4: Generate a contextual and content specific answer using the search results and chat history
         text_sources = []
         image_sources = []
         if send_text_to_gptvision:

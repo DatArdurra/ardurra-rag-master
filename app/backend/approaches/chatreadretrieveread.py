@@ -56,7 +56,8 @@ class ChatReadRetrieveReadApproach(ChatApproach):
         self.query_speller = query_speller
         self.prompt_manager = prompt_manager
         self.query_rewrite_prompt = self.prompt_manager.load_prompt("chat_query_rewrite.prompty")
-        self.query_rewrite_tools = self.prompt_manager.load_tools("chat_query_rewrite_tools.json")
+        self.extract_keywords_prompt = self.prompt_manager.load_prompt("chat_extract_keywords.prompty")
+        self.tools = self.prompt_manager.load_tools("chat_query_rewrite_tools.json") # not used
         self.answer_prompt = self.prompt_manager.load_prompt("chat_answer_question.prompty")
         self.reasoning_effort = reasoning_effort
         self.include_token_usage = True
@@ -88,32 +89,52 @@ class ChatReadRetrieveReadApproach(ChatApproach):
                 f"{self.chatgpt_model} does not support streaming. Please use a different model or disable streaming."
             )
 
+        # STEP 1: Generate a new query based on the chat history and the last question
+
+        # Use prompty to prepare the query prompt
         query_messages = self.prompt_manager.render_prompt(
             self.query_rewrite_prompt, {"user_query": original_user_query, "past_messages": messages[:-1]}
         )
-        tools: list[ChatCompletionToolParam] = self.query_rewrite_tools
+        tools: list[ChatCompletionToolParam] = self.tools # not used, likely not needed
 
-        # STEP 1: Generate an optimized keyword search query based on the chat history and the last question
+        if len(messages) > 1:
 
-        chat_completion = cast(
-            ChatCompletion,
-            await self.create_chat_completion(
-                self.chatgpt_deployment,
-                self.chatgpt_model,
+            # Use the prepared prompt to generate the question with context
+            chat_completion_context: ChatCompletion = await self.openai_client.chat.completions.create(
                 messages=query_messages,
-                overrides=overrides,
-                response_token_limit=self.get_response_token_limit(
-                    self.chatgpt_model, 100
-                ),  # Setting too low risks malformed JSON, setting too high may affect performance
-                temperature=0.0,  # Minimize creativity for search query generation
-                tools=tools,
-                reasoning_effort="low",  # Minimize reasoning for search query generation
-            ),
+                # Azure OpenAI takes the deployment name as the model name
+                model=self.chatgpt_deployment if self.chatgpt_deployment else self.chatgpt_model,
+                temperature=0.1,  # Have some creativity for inserting context from past queries
+                max_tokens=100,
+                n=1
+            )
+
+            query_with_context = self.get_search_query(chat_completion_context, original_user_query)
+            print("Rewriting query")
+        else:
+            query_with_context = original_user_query
+
+        print("query with context: ", query_with_context)
+
+        # STEP 2: Generate an optimized keyword search query based on the rewritten question
+        contextual_query = self.prompt_manager.render_prompt(
+            self.extract_keywords_prompt, {"user_query": query_with_context}
         )
 
-        query_text = self.get_search_query(chat_completion, original_user_query)
+        chat_completion_keywords: ChatCompletion = await self.openai_client.chat.completions.create(
+            messages=contextual_query,
+            # Azure OpenAI takes the deployment name as the model name
+            model=self.chatgpt_deployment if self.chatgpt_deployment else self.chatgpt_model,
+            temperature=0.0,  # No creativity for generating keywords
+            max_tokens=100,
+            n=1
+        )
 
-        # STEP 2: Retrieve relevant documents from the search index with the GPT optimized query
+        query_text = self.get_search_query(chat_completion_keywords, query_with_context)
+
+        print("query_text:", query_text)
+
+        # STEP 3: Retrieve relevant documents from the search index with the GPT optimized query
 
         # If retrieval mode includes vectors, compute an embedding for the query
         vectors: list[VectorQuery] = []
@@ -134,7 +155,7 @@ class ChatReadRetrieveReadApproach(ChatApproach):
             use_query_rewriting,
         )
 
-        # STEP 3: Generate a contextual and content specific answer using the search results and chat history
+        # STEP 4: Generate a contextual and content specific answer using the search results and chat history
         text_sources = self.get_sources_content(results, use_semantic_captions, use_image_citation=False)
         messages = self.prompt_manager.render_prompt(
             self.answer_prompt,
@@ -156,7 +177,7 @@ class ChatReadRetrieveReadApproach(ChatApproach):
                     overrides=overrides,
                     model=self.chatgpt_model,
                     deployment=self.chatgpt_deployment,
-                    usage=chat_completion.usage,
+                    usage=chat_completion_keywords.usage,
                     reasoning_effort="low",
                 ),
                 ThoughtStep(
