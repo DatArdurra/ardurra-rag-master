@@ -13,7 +13,7 @@ from core.authentication import AuthenticationHelper
 class RetrieveThenReadApproach(Approach):
     """
     Simple retrieve-then-read implementation, using the AI Search and OpenAI APIs directly. It first retrieves
-    top documents from search, then constructs a prompt with them, and then uses OpenAI to generate an completion
+    top documents from search, then constructs a prompt with them, and then uses OpenAI to generate a completion
     (answer) with that prompt.
     """
 
@@ -50,6 +50,7 @@ class RetrieveThenReadApproach(Approach):
         self.query_speller = query_speller
         self.prompt_manager = prompt_manager
         self.answer_prompt = self.prompt_manager.load_prompt("ask_answer_question.prompty")
+        self.extract_keywords_prompt = self.prompt_manager.load_prompt("chat_extract_keywords.prompty")
         self.reasoning_effort = reasoning_effort
         self.include_token_usage = True
 
@@ -74,14 +75,45 @@ class RetrieveThenReadApproach(Approach):
         minimum_reranker_score = overrides.get("minimum_reranker_score", 0.0)
         filter = self.build_filter(overrides, auth_claims)
 
+        reasoning_model_support = self.GPT_REASONING_MODELS.get(self.chatgpt_model)
+        if reasoning_model_support and (not reasoning_model_support.streaming): # changed to remove "should_stream" since not in scope
+            raise Exception(
+                f"{self.chatgpt_model} does not support streaming. Please use a different model or disable streaming."
+            )
+
+        # Step 1: Exract keywords
+        
+        user_query = self.prompt_manager.render_prompt(
+            self.extract_keywords_prompt, {"user_query": q}
+        )
+        
+        chat_completion_keywords: ChatCompletion = await self.openai_client.chat.completions.create(
+            messages=user_query,
+            # Azure OpenAI takes the deployment name as the model name
+            model=self.chatgpt_deployment if self.chatgpt_deployment else self.chatgpt_model,
+            temperature=0.0,  # No creativity for generating keywords
+            max_tokens=100,
+            n=1
+        )
+
+        # code copy + pasted from chatapproach.py, get_user_query. And slightly changed. Changed NO_RESPONSE to 0
+        
+        response_message = chat_completion_keywords.choices[0].message
+
+        if query_text := response_message.content:
+            if query_text.strip() == 0: # 0 means no response
+                query_text == user_query
+        else:
+            query_text = user_query
+
         # If retrieval mode includes vectors, compute an embedding for the query
         vectors: list[VectorQuery] = []
         if use_vector_search:
-            vectors.append(await self.compute_text_embedding(q))
+            vectors.append(await self.compute_text_embedding(query_text))
 
         results = await self.search(
             top,
-            q,
+            query_text,
             filter,
             vectors,
             use_text_search,
@@ -117,7 +149,7 @@ class RetrieveThenReadApproach(Approach):
             thoughts=[
                 ThoughtStep(
                     "Search using user query",
-                    q,
+                    query_text,
                     {
                         "use_semantic_captions": use_semantic_captions,
                         "use_semantic_ranker": use_semantic_ranker,

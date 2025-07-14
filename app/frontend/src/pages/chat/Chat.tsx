@@ -45,8 +45,8 @@ const Chat = () => {
     const [promptTemplate, setPromptTemplate] = useState<string>("");
     const [temperature, setTemperature] = useState<number>(0.3);
     const [seed, setSeed] = useState<number | null>(null);
-    const [minimumRerankerScore, setMinimumRerankerScore] = useState<number>(2.1);
-    const [minimumSearchScore, setMinimumSearchScore] = useState<number>(0.012);
+    const [minimumRerankerScore, setMinimumRerankerScore] = useState<number>(1.93);
+    const [minimumSearchScore, setMinimumSearchScore] = useState<number>(0.0135);
     const [retrieveCount, setRetrieveCount] = useState<number>(25);
     const [retrievalMode, setRetrievalMode] = useState<RetrievalMode>(RetrievalMode.Hybrid);
     const [useSemanticRanker, setUseSemanticRanker] = useState<boolean>(true);
