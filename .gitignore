@@ -150,3 +150,9 @@ static/
 data/**/*.md5
 
 .DS_Store
+
+# Ignore large PDFs in O&M Manual
+data/O&M Manual/**/*.pdf
+data/O&M Manual/**/*.xls
+data/O&M Manual/**/*.xlsx
+data/O&M Manual/**/*.md5
